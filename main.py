@@ -52,16 +52,20 @@ else:
                 print(f"{idx}. {mp4_file}")
         return mp4_files
 
+    def convert_to_seconds(hours, minutes, seconds):
+        int_hours = int(hours)
+        int_minutes = int(minutes)
+        int_seconds = int(seconds.split('.')[0])
+        return (int_hours * 3600) + (int_minutes * 60) + int_seconds
 
-    def parse_timestamp(timestamp_str):
-        hms, ms = timestamp_str.split('-')
-        start_time_str, end_time_str = hms.split('-')
+    def parse_timestamp(start_time_str, end_time_str):
         start_time_parts = start_time_str.split(':')
         end_time_parts = end_time_str.split(':')
-        start_hours, start_minutes, start_seconds = map(int, start_time_parts)
-        end_hours, end_minutes, end_seconds = map(int, end_time_parts)
-        return (start_hours, start_minutes, start_seconds), (end_hours, end_minutes, end_seconds)
-
+        start_hours, start_minutes, start_seconds = start_time_parts
+        end_hours, end_minutes, end_seconds = end_time_parts
+        start_time = convert_to_seconds(start_hours, start_minutes, start_seconds)
+        end_time = convert_to_seconds(end_hours, end_minutes, end_seconds)
+        return start_time, end_time
 
     def choose_file():
         root = tk.Tk()
