@@ -104,6 +104,21 @@ else:
         return file_path
 
 
+    def convert_time_format(time_string):
+        # Split the time string by colons and period
+
+        parts = time_string.split(':')
+        hours, minutes, seconds_ms = parts[0], parts[1], parts[2]
+
+        # Split seconds and milliseconds
+        seconds, milliseconds = seconds_ms.split('.')
+
+        # Format the parts in the desired format
+        formatted_time = f"{hours}h{minutes}m{seconds}s"
+
+        return formatted_time
+
+
     def trim_video(video_file, timestamp_file):
         if not os.path.isfile(video_file):
             print(f"Video file '{video_file}' not found.")
@@ -117,11 +132,13 @@ else:
                 for line in lines:
                     start_time_str, end_time_str = line.strip().split("-")
                     start_time, end_time = parse_timestamp(start_time_str, end_time_str)
-                    output_file = f"trimmed_{start_time_str}_{end_time_str}.mp4"
+
+                    output_file = f"trimmed_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)}.mp4"
 
                     subclip = video_clip.subclip(start_time, end_time)
                     rootPath = os.path.dirname(video_file)
-                    output = f"{rootPath}/{output_file}"
+                    output = f"{rootPath}\\{output_file}"
+                    output = output.replace("/", "\\")
                     print(f"\033[32mWriting File To: {output}\033[0m")
 
                     if os.access(rootPath, os.W_OK):
@@ -178,7 +195,7 @@ else:
                     input("Press Enter to continue...")
             elif choice == "4":
                 start_trimming(timestamp_file, video_file)
-            elif choice == "5":
+            elif choice == "5" or choice == "q":
                 break
             else:
                 print("Invalid choice. Please select a valid option.")
