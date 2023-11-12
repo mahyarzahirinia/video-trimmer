@@ -1,9 +1,8 @@
 import importlib.util
-import subprocess
 import os
 import platform
-
-
+import re
+import subprocess
 
 # List of required package dependencies
 required_packages = ["os", "platform", "moviepy", "tkinter", "menu"]
@@ -27,7 +26,6 @@ if missing_packages:
 else:
     # All required packages are available, so you can run the application
 
-    from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
     from moviepy.editor import VideoFileClip
     import tkinter as tk
     from tkinter import filedialog
@@ -35,11 +33,39 @@ else:
     timestamp_file = None
     video_file = None
 
+
     def clear_screen():
         if platform.system() == 'Windows':
             os.system('cls')
         else:
             os.system('clear')
+
+
+    def read_var_from_file(file_path="./vars.txt"):
+        with open(file_path, 'r') as file:
+            # Read the content of the file
+            file_content = file.read()
+            file_paths = file_content.split('\n')
+
+            # return variables
+            txtVar = None
+            mp4Var = None
+            for file_path in file_paths:
+                # Use regular expression to extract the file extension
+                matchTxt = re.search(r'\.txt$', file_path)
+                matchMp4 = re.search(r'\.mp4$', file_path)
+                if matchTxt:
+                    txtVar = file_path
+                elif matchMp4:
+                    mp4Var = file_path
+            return [txtVar, mp4Var]
+
+
+    def write_var_on_file(variableDec, file_path="./vars.txt"):
+        with open(file_path, 'a') as file:
+            # Write the variables to the file
+            file.write(variableDec)
+            file.write('\n')
 
 
     def list_mp4_files_in_directory():
@@ -52,11 +78,13 @@ else:
                 print(f"{idx}. {mp4_file}")
         return mp4_files
 
+
     def convert_to_seconds(hours, minutes, seconds):
         int_hours = int(hours)
         int_minutes = int(minutes)
         int_seconds = int(seconds.split('.')[0])
         return (int_hours * 3600) + (int_minutes * 60) + int_seconds
+
 
     def parse_timestamp(start_time_str, end_time_str):
         start_time_parts = start_time_str.split(':')
@@ -67,10 +95,12 @@ else:
         end_time = convert_to_seconds(end_hours, end_minutes, end_seconds)
         return start_time, end_time
 
+
     def choose_file():
         root = tk.Tk()
         root.withdraw()  # Hide the main tkinter window
         file_path = filedialog.askopenfilename()
+        write_var_on_file(file_path)
         return file_path
 
 
@@ -88,7 +118,7 @@ else:
             start_time, end_time = parse_timestamp(start_time_str, end_time_str)
             subclip = video_clip.subclip(start_time, end_time)
             output_file = f"trimmed_{start_time_str}_{end_time_str}.mp4"
-            subclip.write_videofile(output_file, codec="libx264")
+            subclip.write_videofile(output_file, codec="")
 
         print("Trimming complete. Trimmed videos saved as 'trimmed_<start_time>_<end_time>.mp4'.")
 
@@ -103,14 +133,23 @@ else:
 
 
     def main():
+        global timestamp_file
+        global video_file
+        if os.path.isfile('./vars.txt'):
+            timestamp_file, video_file = read_var_from_file()
         while True:
             clear_screen()
             print("Welcome to Video Trimmer")
+            print("==============================")
+            print("I can use previous files, if so just use 4")
+            print("* txt file:", timestamp_file)
+            print("* mp4 file:", video_file)
             print("1- List all the MP4 files in the current directory")
             print("2- Use the following txt file for range timestamps")
             print("3- Use the following MP4 file as input")
             print("4- Start Trimming")
             print("5- Exit")
+            print("==============================")
             choice = input("Select an option: ")
 
             if choice == "1":
