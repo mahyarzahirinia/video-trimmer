@@ -126,8 +126,7 @@ else:
                         subclip.write_videofile(str(output))
                         # subclip.write_videofile("test.mp4")
         except Exception as e:
-            print("\033[91m AN ERROR OCCURRED\033[0m")
-
+            print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
 
         print("Trimming complete. Trimmed videos saved as 'trimmed_<start_time>_<end_time>.mp4'.")
 
