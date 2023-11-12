@@ -109,16 +109,25 @@ else:
             print(f"Video file '{video_file}' not found.")
             return
 
-        video_clip = VideoFileClip(video_file)
-        with open(timestamp_file, "r") as file:
-            lines = file.readlines()
+        try:
+            with VideoFileClip(video_file) as video_clip:
+                with open(timestamp_file, "r") as file:
+                    lines = file.readlines()
 
-        for line in lines:
-            start_time_str, end_time_str = line.strip().split("-")
-            start_time, end_time = parse_timestamp(start_time_str, end_time_str)
-            subclip = video_clip.subclip(start_time, end_time)
-            output_file = f"trimmed_{start_time_str}_{end_time_str}.mp4"
-            subclip.write_videofile(output_file, codec="")
+                for line in lines:
+                    start_time_str, end_time_str = line.strip().split("-")
+                    start_time, end_time = parse_timestamp(start_time_str, end_time_str)
+                    output_file = f"trimmed_{start_time_str}_{end_time_str}.mp4"
+
+                    subclip = video_clip.subclip(start_time, end_time)
+                    rootPath = os.path.dirname(video_file)
+                    if os.access(rootPath, os.W_OK):
+                        output = subclip.write_videofile(f"{rootPath}/{output_file}")
+                        subclip.write_videofile(str(output))
+                        # subclip.write_videofile("test.mp4")
+        except Exception as e:
+            print("\033[91m AN ERROR OCCURRED\033[0m")
+
 
         print("Trimming complete. Trimmed videos saved as 'trimmed_<start_time>_<end_time>.mp4'.")
 
