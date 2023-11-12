@@ -121,10 +121,13 @@ else:
 
                     subclip = video_clip.subclip(start_time, end_time)
                     rootPath = os.path.dirname(video_file)
+                    output = f"{rootPath}/{output_file}"
+                    print(f"\033[32mWriting File To: {output}\033[0m")
+
                     if os.access(rootPath, os.W_OK):
-                        output = subclip.write_videofile(f"{rootPath}/{output_file}")
-                        subclip.write_videofile(str(output))
-                        # subclip.write_videofile("test.mp4")
+                        # Specify the temp directory for the video and audio files
+                        subclip.write_videofile(output)
+
         except Exception as e:
             print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
 
