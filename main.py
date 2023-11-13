@@ -3,6 +3,7 @@ import os
 import platform
 import re
 import subprocess
+import datetime
 
 # List of required package dependencies
 required_packages = ["os", "platform", "moviepy", "tkinter", "menu"]
@@ -33,6 +34,10 @@ else:
     timestamp_file = None
     video_file = None
     bitrate = None
+    time = None
+
+    # Script Running at
+    current_datetime = datetime.datetime.now()
 
 
     def clear_screen():
@@ -138,31 +143,35 @@ else:
                     start_time_str, end_time_str = line.strip().split("-")
                     start_time, end_time = parse_timestamp(start_time_str, end_time_str)
 
-                    output_file = f"trimmed_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)}.mp4"
+                    output_file = f"trimmed_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}].mp4"
 
                     subclip = video_clip.subclip(start_time, end_time)
-                    rootPath = os.path.dirname(video_file)
-                    output = f"{rootPath}\\{output_file}"
-                    output = output.replace("/", "\\")
+                    root_path = os.path.dirname(video_file)
+
+                    # Create the subdirectory first
+                    sub_directory = f"{convert_time_format(str(current_datetime.time()))} @ {str(current_datetime.date())}"
+                    root_path = root_path.replace("/", "\\")
+                    os.makedirs(f"{root_path}\\{sub_directory}")
+                    output = f"{root_path}\\{sub_directory}\\{output_file}"
                     print(f"\033[32mWriting File To: {output}\033[0m")
 
-                    if os.access(rootPath, os.W_OK):
+                    if os.access(root_path, os.W_OK):
                         # Specify the temp directory for the video and audio files
-                        subclip.write_videofile(output, bitrate='1000k')
+                        subclip.write_videofile(output, bitrate=bitrate)
 
         except Exception as e:
             print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
 
-        print("Trimming complete. Trimmed videos saved as 'trimmed_<start_time>_<end_time>.mp4'.")
+        print(f"Trimming complete. Trimmed videos saved as {output_file}.")
 
 
     def start_trimming(timestamp_file, video_file):
         if timestamp_file is None or video_file is None:
             print("Both a timestamp file and an MP4 file must be selected before trimming.")
-            input("Press Enter to continue...")
+            input("Press [Enter] to continue")
         else:
             trim_video(video_file, timestamp_file)
-            input("Press Enter to continue...")
+            input("Press [Enter] to continue")
 
 
     def main():
@@ -173,12 +182,12 @@ else:
             if os.path.isfile('./vars.txt'):
                 timestamp_file, video_file, bitrate = read_var_from_file()
             clear_screen()
-            print("Welcome to Video Trimmer")
-            print("==============================")
+            print("Video Trimmer")
+            print(f"==== {current_datetime.time()} | {current_datetime.date()} =========")
             print("Previous Selections:")
             print("* txt file:", timestamp_file)
             print("* mp4 file:", video_file)
-            print("* bitrate:", bitrate)
+            print("* bitrate:", bitrate, "\n")
             print("1- List all the MP4 files in the current directory")
             print("2- Use the following txt file for range timestamps")
             print("3- Use the following MP4 file as input")
@@ -190,23 +199,23 @@ else:
 
             if choice == "1" or choice == "l":
                 list_mp4_files_in_directory()
-                input("Press Enter to continue...")
+                input("Press [Enter] to continue")
             elif choice == "2" or choice == "t":
                 timestamp_file = choose_file()
                 if not timestamp_file:
                     print("No file selected. Returning to the main menu.")
-                    input("Press Enter to continue...")
+                    input("Press [Enter] to continue")
             elif choice == "3" or choice == "v":
                 video_file = choose_file()
                 if not video_file:
                     print("No video file selected. Returning to the main menu.")
-                    input("Press Enter to continue...")
+                    input("Press [Enter] to continue")
             elif choice == "4" or choice == "b":
-                print("\033[93mIf Skipped, It Will Uses The Default (2000k)\033[0m")
+                print("\033[93mIf Skipped, It Will Uses The Default (None)\033[0m")
                 print("\033[93mbitrate: 1500k is moderate\033[0m")
                 bitrate = input("Enter Bitrate: ")
                 if not bitrate:
-                    bitrate = "2000k"
+                    bitrate = None
                 write_var_on_file(f"{bitrate}k")
             elif choice == "5" or choice == "s":
                 start_trimming(timestamp_file, video_file)
@@ -214,7 +223,7 @@ else:
                 break
             else:
                 print("Invalid choice. Please select a valid option.")
-                input("Press Enter to continue...")
+                input("Press [Enter] to continue")
 
 
     if __name__ == "__main__":
