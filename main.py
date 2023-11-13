@@ -61,7 +61,7 @@ else:
                 # Use regular expression to extract the file extension
                 matchTxt = re.search(r'\.txt$', file_path)
                 matchMp4 = re.search(r'\.mp4$', file_path)
-                matchBitrate = re.search(r'\d+k$', file_path)
+                matchBitrate = re.search(r'\d+k|Nonek$', file_path)
                 if matchTxt:
                     txtVar = file_path
                 elif matchMp4:
@@ -157,7 +157,7 @@ else:
 
                     if os.access(root_path, os.W_OK):
                         # Specify the temp directory for the video and audio files
-                        subclip.write_videofile(output, bitrate=bitrate)
+                        subclip.write_videofile(output, bitrate=(None if bitrate == "NoneK" else bitrate))
 
         except Exception as e:
             print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
