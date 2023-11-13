@@ -143,7 +143,7 @@ else:
                     start_time_str, end_time_str = line.strip().split("-")
                     start_time, end_time = parse_timestamp(start_time_str, end_time_str)
 
-                    output_file = f"trimmed_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}].mp4"
+                    output_file = f"clip_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}].mp4"
 
                     subclip = video_clip.subclip(start_time, end_time)
                     root_path = os.path.dirname(video_file)
