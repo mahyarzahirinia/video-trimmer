@@ -151,13 +151,17 @@ else:
                     # Create the subdirectory first
                     sub_directory = os.path.splitext(os.path.basename(video_file))[0]
                     root_path = root_path.replace("/", "\\")
-                    os.makedirs(f"{root_path}\\{sub_directory}")
+                    if not os.path.exists(f"{root_path}\\{sub_directory}"):
+                        os.makedirs(f"{root_path}\\{sub_directory}")
                     output = f"{root_path}\\{sub_directory}\\{output_file}"
                     print(f"\033[32mWriting File To: {output}\033[0m")
 
                     if os.access(root_path, os.W_OK):
                         # Specify the temp directory for the video and audio files
-                        subclip.write_videofile(output, bitrate=(None if bitrate == "NoneK" else bitrate))
+                        if bitrate == 'Nonek':
+                            subclip.write_videofile(output)
+                        else:
+                            subclip.write_videofile(output, bitrate=bitrate)
 
         except Exception as e:
             print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
