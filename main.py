@@ -206,7 +206,7 @@ else:
     def parse_text_file():
         global timestamp_file
         flag = False
-        do_it_for_all = False
+
         if not timestamp_file:
             print("No Timestamps File found.")
 
@@ -236,7 +236,39 @@ else:
                 print(f"\033[92mfile is correct.\033[0m")
         input()
 
+    def generate_file_sample():
+        global timestamp_file
+        global video_file
+        file_name = os.path.splitext(os.path.basename(video_file))[0] + '.txt'
+        root_path = os.path.dirname(video_file)
+        whole_path = f"{root_path}\\{file_name}"
+        if os.path.exists(whole_path):
+            print('\033[93mTimestamp File Exists.\033[0m')
 
+            delete = input('\033[93mwould you like to regenerate it? (y/n)\033[0m\n')
+            if delete == 'y':
+                try:
+                    os.remove(whole_path)
+                    print(f"The file '{whole_path}' has been successfully removed.")
+                except Exception as e:
+                    print(f"An error occurred: {e}")
+
+        if not os.path.exists(whole_path):
+            with open(whole_path, 'w') as file:
+                for i in range(1, 14 + 1):
+                    start_time = f"00:{i:02d}:00.00"
+                    end_time = f"00:{i:02d}:00.00"
+                    time_interval = f"{start_time}-{end_time}"
+                    file.write(f'{time_interval}\n')
+
+            print(f"\033[92m{file_name} generated.\033[0m")
+
+        res = input('would you like to use it? (enter=y/n)')
+        if res == 'y' or res == '':
+            timestamp_file = whole_path
+            write_var_on_file(timestamp_file)
+            print(f"\033[92mit's been used.\033[0m")
+        input()
 
     def main():
         global timestamp_file
@@ -259,7 +291,8 @@ else:
             print("5-[s] Start Trimming")
             print("6-[p] Parse and Check Timestamps File")
             print("7-[e] Edit Timestamps File")
-            print("8-[q] Exit")
+            print("8-[g] Generate Timestamp File Sample")
+            print("9-[q] Exit")
             print("==============================")
             choice = input("Select an option: ")
 
@@ -292,7 +325,9 @@ else:
                     subprocess.run(["notepad.exe", timestamp_file], check=True)
                 except subprocess.CalledProcessError as e:
                     print(f"Error opening the file with Notepad: {e}")
-            elif choice == "8" or choice == "q":
+            elif choice == "8" or choice == "g":
+                generate_file_sample()
+            elif choice == "9" or choice == "q":
                 break
             else:
                 print("Invalid choice. Please select a valid option.")
