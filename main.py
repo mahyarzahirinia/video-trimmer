@@ -191,7 +191,7 @@ else:
         except Exception as e:
             print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
 
-        print(f"Trimming complete. Trimmed videos saved as {output_file}.")
+        print(f"\n\n\033[92mTrimming complete. Trimmed videos saved in {root_path}\\{sub_directory}\033[0m")
 
 
     def start_trimming(timestamp_file, video_file):
