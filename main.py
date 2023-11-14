@@ -149,7 +149,7 @@ else:
                     root_path = os.path.dirname(video_file)
 
                     # Create the subdirectory first
-                    sub_directory = f"{convert_time_format(str(current_datetime.time()))} @ {str(current_datetime.date())}"
+                    sub_directory = os.path.splitext(os.path.basename(video_file))[0]
                     root_path = root_path.replace("/", "\\")
                     os.makedirs(f"{root_path}\\{sub_directory}")
                     output = f"{root_path}\\{sub_directory}\\{output_file}"
