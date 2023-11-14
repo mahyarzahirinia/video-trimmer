@@ -144,6 +144,7 @@ else:
 
 
     def trim_video(video_file, timestamp_file):
+        global bitrate
         if not os.path.isfile(video_file):
             print(f"Video file '{video_file}' not found.")
             return
@@ -164,16 +165,21 @@ else:
                     output_file = f"clip_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}].mp4"
 
                     subclip = video_clip.subclip(start_time, end_time)
-                    root_path = os.path.dirname(video_file)
+                    file_direname = os.path.dirname(video_file)
 
                     # Create the subdirectory first
                     sub_directory = os.path.splitext(os.path.basename(video_file))[0]
-                    root_path = root_path.replace("/", "\\")
+                    file_direname = file_direname.replace("/", "\\")
+                    path_before_to_file = f"{file_direname}\\{sub_directory}"
+                    whole_path = f"{file_direname}\\{sub_directory}\\{bitrate}"
 
-                    # Check if directory exits
-                    if not os.path.exists(f"{root_path}\\{sub_directory}"):
-                        os.makedirs(f"{root_path}\\{sub_directory}")
-                    output = f"{root_path}\\{sub_directory}\\{output_file}"
+                    # Check if directories exits
+                    if not os.path.exists(path_before_to_file):
+                        os.makedirs(path_before_to_file)
+                    if not os.path.exists(whole_path):
+                        os.makedirs(whole_path)
+
+                    output = f"{whole_path}\\{output_file}"
 
                     print(f"\033[32mWriting File To: {output}\033[0m")
 
@@ -181,7 +187,7 @@ else:
                     if os.path.exists(output):
                         continue
 
-                    if os.access(root_path, os.W_OK):
+                    if os.access(file_direname, os.W_OK):
                         # Specify the temp directory for the video and audio files
                         if bitrate == 'Nonek':
                             subclip.write_videofile(output)
@@ -191,7 +197,7 @@ else:
         except Exception as e:
             print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
 
-        print(f"\n\n\033[92mTrimming complete. Trimmed videos saved in {root_path}\\{sub_directory}\033[0m")
+        print(f"\n\n\033[92mTrimming complete. Trimmed videos saved in {file_direname}\\{sub_directory}\033[0m")
 
 
     def start_trimming(timestamp_file, video_file):
