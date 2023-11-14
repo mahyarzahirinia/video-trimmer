@@ -189,6 +189,41 @@ else:
             input("Press [Enter] to continue")
 
 
+    def parseTxtFile():
+        global timestamp_file
+        flag = False
+        doItForAll = False
+        if not timestamp_file:
+            print("No Timestamps File found.")
+
+        with open(timestamp_file, 'r+') as file:
+            # Read the content of the file
+            file_content = file.read()
+            file_lines = file_content.split('\n')
+
+            for index, line in enumerate(file_lines, start=1):
+                start_time_str, end_time_str = line.strip().replace('*','').split("-")
+                start_time, end_time = parse_timestamp(start_time_str, end_time_str)
+                if start_time > end_time:
+                    flag = True
+                    print(f"\n\033[91mline {index} is wrong\033[0m")
+                    res = input(f"would you like me to mark it in the file? (enter=y/n | all)")
+                    if res.lower() in {'', 'y', 'yes'}:
+                        # Mark the line by adding a prefix
+                        file_lines[index - 1] = "*" + file_lines[index - 1]
+                        # Move the file pointer to the beginning
+                        file.seek(0)
+                        # Write the updated content back to the file
+                        file.write('\n'.join(file_lines))
+
+            if flag:
+                print(f"\n\033[91mfile needs to be corrected.\033[0m")
+            else:
+                print(f"\033[92mfile is correct.\033[0m")
+        input()
+
+
+
     def main():
         global timestamp_file
         global video_file
@@ -203,12 +238,14 @@ else:
             print("* txt file:", timestamp_file)
             print("* mp4 file:", video_file)
             print("* bitrate:", bitrate, "\n")
-            print("1- List all the MP4 files in the current directory")
-            print("2- Use the following txt file for range timestamps")
-            print("3- Use the following MP4 file as input")
-            print("4- Set the bitrate")
-            print("5- Start Trimming")
-            print("5- Exit")
+            print("1-[l] List all the MP4 files in the current directory")
+            print("2-[t] Use the following txt file for range timestamps")
+            print("3-[v] Use the following MP4 file as input")
+            print("4-[b] Set the bitrate")
+            print("5-[s] Start Trimming")
+            print("6-[p] Parse and Check Timestamps File")
+            print("7-[e] Edit Timestamps File")
+            print("8-[q]  Exit")
             print("==============================")
             choice = input("Select an option: ")
 
@@ -234,7 +271,14 @@ else:
                 write_var_on_file(f"{bitrate}k")
             elif choice == "5" or choice == "s":
                 start_trimming(timestamp_file, video_file)
-            elif choice == "6" or choice == "q":
+            elif choice == "6" or choice == "p":
+                parseTxtFile()
+            elif choice == "7" or choice == "e":
+                try:
+                    subprocess.run(["notepad.exe", timestamp_file], check=True)
+                except subprocess.CalledProcessError as e:
+                    print(f"Error opening the file with Notepad: {e}")
+            elif choice == "8" or choice == "q":
                 break
             else:
                 print("Invalid choice. Please select a valid option.")
