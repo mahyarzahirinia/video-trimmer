@@ -216,6 +216,8 @@ else:
             file_lines = file_content.split('\n')
 
             for index, line in enumerate(file_lines, start=1):
+                if line == '' or line == '\n':
+                    continue
                 start_time_str, end_time_str = line.strip().split("-")
                 start_time_str, end_time_str = timestamp_formatter(start_time_str, end_time_str)
                 start_time, end_time = parse_timestamp(start_time_str, end_time_str)
