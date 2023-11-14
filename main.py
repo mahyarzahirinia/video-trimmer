@@ -106,6 +106,20 @@ else:
         return start_time, end_time
 
 
+    def timestamp_formatter(*args):
+        formatted_timestamps = []
+
+        for text in args:
+            if isinstance(text, str):
+                time_pattern = re.compile(r'\b\d{1,2}:\d{1,2}:\d{1,2}\.\d{1,3}\b')
+                final_format = re.sub(f'[^{time_pattern.pattern}]', '', text)
+                formatted_timestamps.append(final_format)
+            else:
+                print(f"Skipping non-string argument: {text}")
+
+        return formatted_timestamps
+
+
     def choose_file():
         root = tk.Tk()
         root.withdraw()  # Hide the main tkinter window
@@ -202,7 +216,8 @@ else:
             file_lines = file_content.split('\n')
 
             for index, line in enumerate(file_lines, start=1):
-                start_time_str, end_time_str = line.strip().replace('*','').split("-")
+                start_time_str, end_time_str = line.strip().split("-")
+                start_time_str, end_time_str = timestamp_formatter(start_time_str, end_time_str)
                 start_time, end_time = parse_timestamp(start_time_str, end_time_str)
                 if start_time > end_time:
                     flag = True
