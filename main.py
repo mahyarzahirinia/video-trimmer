@@ -140,6 +140,10 @@ else:
                     lines = file.readlines()
 
                 for line in lines:
+                    # For empty lines don't waste time
+                    if line == '\n':
+                        continue
+
                     start_time_str, end_time_str = line.strip().split("-")
                     start_time, end_time = parse_timestamp(start_time_str, end_time_str)
 
@@ -151,10 +155,17 @@ else:
                     # Create the subdirectory first
                     sub_directory = os.path.splitext(os.path.basename(video_file))[0]
                     root_path = root_path.replace("/", "\\")
+
+                    # Check if directory exits
                     if not os.path.exists(f"{root_path}\\{sub_directory}"):
                         os.makedirs(f"{root_path}\\{sub_directory}")
                     output = f"{root_path}\\{sub_directory}\\{output_file}"
+
                     print(f"\033[32mWriting File To: {output}\033[0m")
+
+                    # Check if file already exists
+                    if os.path.exists(output):
+                        continue
 
                     if os.access(root_path, os.W_OK):
                         # Specify the temp directory for the video and audio files
