@@ -197,16 +197,16 @@ else:
     def start_trimming(timestamp_file, video_file):
         if timestamp_file is None or video_file is None:
             print("Both a timestamp file and an MP4 file must be selected before trimming.")
-            input("Press [Enter] to continue")
+            input("")
         else:
             trim_video(video_file, timestamp_file)
-            input("Press [Enter] to continue")
+            input("")
 
 
-    def parseTxtFile():
+    def parse_text_file():
         global timestamp_file
         flag = False
-        doItForAll = False
+        do_it_for_all = False
         if not timestamp_file:
             print("No Timestamps File found.")
 
@@ -221,15 +221,14 @@ else:
                 start_time, end_time = parse_timestamp(start_time_str, end_time_str)
                 if start_time > end_time:
                     flag = True
-                    print(f"\n\033[91mline {index} is wrong\033[0m")
-                    res = input(f"would you like me to mark it in the file? (enter=y/n | all)")
-                    if res.lower() in {'', 'y', 'yes'}:
-                        # Mark the line by adding a prefix
-                        file_lines[index - 1] = "*" + file_lines[index - 1]
-                        # Move the file pointer to the beginning
-                        file.seek(0)
-                        # Write the updated content back to the file
-                        file.write('\n'.join(file_lines))
+                    print(f"\n\033[91mline {index} is wrong.\033[0m")
+                    # Mark the line by adding a prefix
+                    file_lines[index - 1] = "*" + file_lines[index - 1]
+                    # Move the file pointer to the beginning
+                    file.seek(0)
+                    # Write the updated content back to the file
+                    file.write('\n'.join(file_lines))
+                    print(f"\n\033[91mline {index} is marked.\033[0m")
 
             if flag:
                 print(f"\n\033[91mfile needs to be corrected.\033[0m")
@@ -260,23 +259,23 @@ else:
             print("5-[s] Start Trimming")
             print("6-[p] Parse and Check Timestamps File")
             print("7-[e] Edit Timestamps File")
-            print("8-[q]  Exit")
+            print("8-[q] Exit")
             print("==============================")
             choice = input("Select an option: ")
 
             if choice == "1" or choice == "l":
                 list_mp4_files_in_directory()
-                input("Press [Enter] to continue")
+                input("")
             elif choice == "2" or choice == "t":
                 timestamp_file = choose_file()
                 if not timestamp_file:
                     print("No file selected. Returning to the main menu.")
-                    input("Press [Enter] to continue")
+                    input("")
             elif choice == "3" or choice == "v":
                 video_file = choose_file()
                 if not video_file:
                     print("No video file selected. Returning to the main menu.")
-                    input("Press [Enter] to continue")
+                    input("")
             elif choice == "4" or choice == "b":
                 print("\033[93mIf Skipped, It Will Uses The Default (None)\033[0m")
                 print("\033[93mbitrate: 1500k is moderate\033[0m")
@@ -287,7 +286,7 @@ else:
             elif choice == "5" or choice == "s":
                 start_trimming(timestamp_file, video_file)
             elif choice == "6" or choice == "p":
-                parseTxtFile()
+                parse_text_file()
             elif choice == "7" or choice == "e":
                 try:
                     subprocess.run(["notepad.exe", timestamp_file], check=True)
@@ -297,7 +296,7 @@ else:
                 break
             else:
                 print("Invalid choice. Please select a valid option.")
-                input("Press [Enter] to continue")
+                input("")
 
 
     if __name__ == "__main__":
