@@ -227,7 +227,7 @@ else:
                 start_time_str, end_time_str = line.strip().split("-")
                 start_time_str, end_time_str = timestamp_formatter(start_time_str, end_time_str)
                 start_time, end_time = parse_timestamp(start_time_str, end_time_str)
-                if start_time > end_time:
+                if start_time >= end_time:
                     flag = True
                     print(f"\n\033[91mline {index} is wrong.\033[0m")
                     # Mark the line by adding a prefix
