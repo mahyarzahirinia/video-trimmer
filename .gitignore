@@ -1,4 +1,6 @@
 build/
 dist/
 .idea/
-
+vars.txt
+*.mp3
+*.mp4
