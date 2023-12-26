@@ -1,9 +1,10 @@
+import datetime
 import importlib.util
 import os
 import platform
 import re
 import subprocess
-import datetime
+import textwrap
 
 # List of required package dependencies
 required_packages = ["os", "platform", "moviepy", "tkinter", "menu"]
@@ -27,7 +28,7 @@ if missing_packages:
 else:
     # All required packages are available, so you can run the application
 
-    from moviepy.editor import VideoFileClip
+    from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
     import tkinter as tk
     from tkinter import filedialog
 
@@ -35,6 +36,7 @@ else:
     video_file = None
     bitrate = None
     time = None
+    default_font = "./IRANYekanBold.ttf"
 
     # Script Running at
     current_datetime = datetime.datetime.now()
@@ -54,21 +56,21 @@ else:
             file_paths = file_content.split('\n')
 
             # return variables
-            txtVar = None
-            mp4Var = None
-            bitVar = None
+            txt_var = None
+            mp4_var = None
+            bit_var = None
             for file_path in file_paths:
                 # Use regular expression to extract the file extension
-                matchTxt = re.search(r'\.txt$', file_path)
-                matchMp4 = re.search(r'\.mp4$', file_path)
-                matchBitrate = re.search(r'\d+k|Nonek$', file_path)
-                if matchTxt:
-                    txtVar = file_path
-                elif matchMp4:
-                    mp4Var = file_path
-                elif matchBitrate:
-                    bitVar = file_path
-            return [txtVar, mp4Var, bitVar]
+                match_txt = re.search(r'\.txt$', file_path)
+                match_mp4 = re.search(r'\.mp4$', file_path)
+                match_bitrate = re.search(r'\d+k|Nonek$', file_path)
+                if match_txt:
+                    txt_var = file_path
+                elif match_mp4:
+                    mp4_var = file_path
+                elif match_bitrate:
+                    bit_var = file_path
+            return [txt_var, mp4_var, bit_var]
 
 
     def write_var_on_file(variableDec, file_path="./vars.txt"):
@@ -143,15 +145,22 @@ else:
         return formatted_time
 
 
+    def position_subtitle(input_str, interval):
+        # return '\n'.join(input_str[i:i + interval] for i in range(0, len(input_str), interval))
+        return textwrap.fill(input_str, width=interval, break_long_words=False)
+
+
     def trim_video(video_file, timestamp_file):
         global bitrate
+        global default_font
         if not os.path.isfile(video_file):
             print(f"Video file '{video_file}' not found.")
             return
 
+        # Load the video
         try:
             with VideoFileClip(video_file) as video_clip:
-                with open(timestamp_file, "r") as file:
+                with open(timestamp_file, "r", encoding='utf-8') as file:
                     lines = file.readlines()
 
                 for line in lines:
@@ -159,7 +168,21 @@ else:
                     if line == '\n':
                         continue
 
-                    start_time_str, end_time_str = line.strip().split("-")
+                    # Count Dashes to decide if text has subtitle
+                    dash_counts = line.count("-")
+
+                    if dash_counts == 1:
+                        start_time_str, end_time_str = line.strip().split("-")
+                    if dash_counts > 1:
+                        start_time_str, end_time_str, subtitle_text = line.strip().split("-", 2)
+
+                    # if empty, put .
+                    if subtitle_text:
+                        subtitle_text = position_subtitle(subtitle_text, 57)
+
+                    if subtitle_text == '':
+                        subtitle_text = '.'
+
                     start_time, end_time = parse_timestamp(start_time_str, end_time_str)
 
                     output_file = f"clip_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}].mp4"
@@ -190,9 +213,27 @@ else:
                     if os.access(file_direname, os.W_OK):
                         # Specify the temp directory for the video and audio files
                         if bitrate == 'Nonek':
-                            subclip.write_videofile(output)
+                            if dash_counts == 1:
+                                subclip.write_videofile(output)
+                            if dash_counts > 1:
+                                text_clip = TextClip(subtitle_text,
+                                                     fontsize=52, color="white", bg_color="black", font=default_font)
+                                text_clip = text_clip.set_duration(subclip.duration)
+                                text_clip = text_clip.set_position(("center", "bottom"))
+                                final_clip = CompositeVideoClip([subclip, text_clip])
+                                final_clip.write_videofile(output)
                         else:
-                            subclip.write_videofile(output, bitrate=bitrate)
+                            if dash_counts == 1:
+                                subclip.write_videofile(output, bitrate=bitrate)
+                            if dash_counts > 1:
+                                text_clip = TextClip(subtitle_text,
+                                                     fontsize=52, bg_color="black", color="white",
+                                                     font=default_font)
+                                text_clip = text_clip.set_opacity(0.3)
+                                text_clip = text_clip.set_duration(subclip.duration)
+                                text_clip = text_clip.set_position(("center", "bottom"))
+                                final_clip = CompositeVideoClip([subclip, text_clip])
+                                final_clip.write_videofile(output, bitrate=bitrate)
 
         except Exception as e:
             print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
@@ -224,14 +265,24 @@ else:
             for index, line in enumerate(file_lines, start=1):
                 if line == '' or line == '\n':
                     continue
-                start_time_str, end_time_str = line.strip().split("-")
+
+                # Count Dashes to decide if text has subtitle
+                dash_counts = line.count("-")
+
+                if dash_counts == 1:
+                    start_time_str, end_time_str = line.strip().split("-")
+                if dash_counts > 1:
+                    start_time_str, end_time_str, subtitle_text = line.strip().split("-", 2)
+                    if subtitle_text == '':
+                        file_lines[index - 1] = "*empty " + file_lines[index - 1]
+
                 start_time_str, end_time_str = timestamp_formatter(start_time_str, end_time_str)
                 start_time, end_time = parse_timestamp(start_time_str, end_time_str)
                 if start_time >= end_time:
                     flag = True
                     print(f"\n\033[91mline {index} is wrong.\033[0m")
                     # Mark the line by adding a prefix
-                    file_lines[index - 1] = "*" + file_lines[index - 1]
+                    file_lines[index - 1] = "*time_diff " + file_lines[index - 1]
                     # Move the file pointer to the beginning
                     file.seek(0)
                     # Write the updated content back to the file
@@ -243,6 +294,7 @@ else:
             else:
                 print(f"\033[92mfile is correct.\033[0m")
         input()
+
 
     def generate_file_sample():
         global timestamp_file
@@ -277,6 +329,7 @@ else:
             write_var_on_file(timestamp_file)
             print(f"\033[92mit's been used.\033[0m")
         input()
+
 
     def main():
         global timestamp_file
