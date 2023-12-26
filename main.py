@@ -229,6 +229,7 @@ else:
                             if dash_counts > 1:
                                 text_clip = TextClip(subtitle_text,
                                                      fontsize=52, color="white", bg_color="black", font=default_font)
+                                text_clip = text_clip.set_opacity(0.4)
                                 text_clip = text_clip.set_duration(subclip.duration)
                                 text_clip = text_clip.set_position(("center", "bottom"))
                                 final_clip = CompositeVideoClip([subclip, text_clip])
@@ -240,7 +241,7 @@ else:
                                 text_clip = TextClip(subtitle_text,
                                                      fontsize=52, bg_color="black", color="white",
                                                      font=default_font)
-                                text_clip = text_clip.set_opacity(0.3)
+                                text_clip = text_clip.set_opacity(0.4)
                                 text_clip = text_clip.set_duration(subclip.duration)
                                 text_clip = text_clip.set_position(("center", "bottom"))
                                 final_clip = CompositeVideoClip([subclip, text_clip])
