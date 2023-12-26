@@ -31,8 +31,6 @@ else:
     from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
     import tkinter as tk
     from tkinter import filedialog
-    from tqdm import tqdm
-    import time
 
     timestamp_file = None
     video_file = None
@@ -397,7 +395,7 @@ else:
                 parse_text_file()
             elif choice == "7" or choice == "e":
                 try:
-                    subprocess.Popen(["explorer", "."], shell=True)
+                    subprocess.Popen(["explorer", os.path.dirname(video_file).replace("/", "\\")], shell=True)
                     subprocess.run(["notepad.exe", timestamp_file], check=True)
                 except subprocess.CalledProcessError as e:
                     print(f"Error opening the file with Notepad: {e}")
