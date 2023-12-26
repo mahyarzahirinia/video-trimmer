@@ -250,6 +250,7 @@ else:
                     # Progress ratio
                     manual_progress_bar(len(lines), index)
 
+
         except Exception as e:
             print(f"\n\033[91mERROR: {e}\033[0m")
 
@@ -396,6 +397,7 @@ else:
                 parse_text_file()
             elif choice == "7" or choice == "e":
                 try:
+                    subprocess.Popen(["explorer", "."], shell=True)
                     subprocess.run(["notepad.exe", timestamp_file], check=True)
                 except subprocess.CalledProcessError as e:
                     print(f"Error opening the file with Notepad: {e}")
