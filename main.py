@@ -7,7 +7,7 @@ import subprocess
 import textwrap
 
 # List of required package dependencies
-required_packages = ["os", "platform", "moviepy", "tkinter", "menu"]
+required_packages = ["os", "platform", "moviepy", "tkinter", "menu", "tqdm"]
 
 # Check if the required packages are available
 missing_packages = [package for package in required_packages if importlib.util.find_spec(package) is None]
@@ -31,15 +31,28 @@ else:
     from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
     import tkinter as tk
     from tkinter import filedialog
+    from tqdm import tqdm
+    import time
 
     timestamp_file = None
     video_file = None
     bitrate = None
-    time = None
     default_font = "./IRANYekanBold.ttf"
 
     # Script Running at
     current_datetime = datetime.datetime.now()
+
+
+    def manual_progress_bar(total, current_index):
+        bar_length = 30
+        progress = min(1, current_index / total)  # Ensure progress is between 0 and 1
+        block = int(round(bar_length * progress))
+
+        progress_bar = "\033[93m[" + "#" * block + "-" * (bar_length - block) + "]\033[0m"
+        percentage = round(progress * 100, 1)
+
+        print(f"\033[93mItem: {current_index} out of {total}\033[0m")
+        print(f"Progress: {progress_bar} {percentage}%")
 
 
     def clear_screen():
@@ -153,6 +166,7 @@ else:
     def trim_video(video_file, timestamp_file):
         global bitrate
         global default_font
+        subtitle_text = None
         if not os.path.isfile(video_file):
             print(f"Video file '{video_file}' not found.")
             return
@@ -163,7 +177,7 @@ else:
                 with open(timestamp_file, "r", encoding='utf-8') as file:
                     lines = file.readlines()
 
-                for line in lines:
+                for index, line in enumerate(lines):
                     # For empty lines don't waste time
                     if line == '\n':
                         continue
@@ -204,8 +218,6 @@ else:
 
                     output = f"{whole_path}\\{output_file}"
 
-                    print(f"\033[32mWriting File To: {output}\033[0m")
-
                     # Check if file already exists
                     if os.path.exists(output):
                         continue
@@ -235,10 +247,11 @@ else:
                                 final_clip = CompositeVideoClip([subclip, text_clip])
                                 final_clip.write_videofile(output, bitrate=bitrate)
 
-        except Exception as e:
-            print(f"\n\033[91mAN ERROR OCCURRED : {e}\033[0m")
+                    # Progress ratio
+                    manual_progress_bar(len(lines), index)
 
-        print(f"\n\n\033[92mTrimming complete. Trimmed videos saved in {file_direname}\\{sub_directory}\033[0m")
+        except Exception as e:
+            print(f"\n\033[91mERROR: {e}\033[0m")
 
 
     def start_trimming(timestamp_file, video_file):
