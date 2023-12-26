@@ -188,10 +188,11 @@ else:
                     if dash_counts > 1:
                         start_time_str, end_time_str, subtitle_text = line.strip().split("-", 2)
 
-                    # if empty, put .
+                    # check for a long text
                     if subtitle_text:
-                        subtitle_text = position_subtitle(subtitle_text, 57)
+                        subtitle_text = position_subtitle(subtitle_text, 62)
 
+                    # if empty, put .
                     if subtitle_text == '':
                         subtitle_text = '.'
 
