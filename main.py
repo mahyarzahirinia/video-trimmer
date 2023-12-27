@@ -180,11 +180,6 @@ else:
                     if line == '\n':
                         continue
 
-                    # Check if file already exists, if so don't waste time
-                    if os.path.exists(output):
-                        print(f"\033[92mitem {index} out of {len(lines)} already exists\033[0m")
-                        continue
-
                     # Count Dashes to decide if text has subtitle
                     dash_counts = line.count("-")
 
@@ -221,6 +216,10 @@ else:
                         os.makedirs(whole_path)
 
                     output = f"{whole_path}\\{output_file}"
+
+                    # Check if file already exists
+                    if os.path.exists(output):
+                        continue
 
                     if os.access(file_direname, os.W_OK):
                         # Specify the temp directory for the video and audio files
