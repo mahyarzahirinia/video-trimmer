@@ -180,6 +180,10 @@ else:
                     if line == '\n':
                         continue
 
+                    # Check if file already exists, if so don't waste time
+                    if os.path.exists(output):
+                        continue
+
                     # Count Dashes to decide if text has subtitle
                     dash_counts = line.count("-")
 
@@ -217,10 +221,6 @@ else:
 
                     output = f"{whole_path}\\{output_file}"
 
-                    # Check if file already exists
-                    if os.path.exists(output):
-                        continue
-
                     if os.access(file_direname, os.W_OK):
                         # Specify the temp directory for the video and audio files
                         if bitrate == 'Nonek':
@@ -249,7 +249,6 @@ else:
 
                     # Progress ratio
                     manual_progress_bar(len(lines), index)
-
 
         except Exception as e:
             print(f"\n\033[91mERROR: {e}\033[0m")
