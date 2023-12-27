@@ -271,7 +271,7 @@ else:
         if not timestamp_file:
             print("No Timestamps File found.")
 
-        with open(timestamp_file, 'r+') as file:
+        with open(timestamp_file, 'r+', encoding='utf-8') as file:
             # Read the content of the file
             file_content = file.read()
             file_lines = file_content.split('\n')
