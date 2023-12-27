@@ -35,6 +35,7 @@ else:
     timestamp_file = None
     video_file = None
     bitrate = None
+    want_subtitle = False
     default_font = "./IRANYekanBold.ttf"
 
     # Script Running at
@@ -70,18 +71,22 @@ else:
             txt_var = None
             mp4_var = None
             bit_var = None
+            sub_var = False
             for file_path in file_paths:
                 # Use regular expression to extract the file extension
                 match_txt = re.search(r'\.txt$', file_path)
                 match_mp4 = re.search(r'\.mp4$', file_path)
                 match_bitrate = re.search(r'\d+k|Nonek$', file_path)
+                match_subtitle = re.search(r'\b(True|False)\b', file_path)
                 if match_txt:
                     txt_var = file_path
                 elif match_mp4:
                     mp4_var = file_path
                 elif match_bitrate:
                     bit_var = file_path
-            return [txt_var, mp4_var, bit_var]
+                elif match_subtitle:
+                    sub_var = file_path
+            return [txt_var, mp4_var, bit_var, sub_var]
 
 
     def write_var_on_file(variableDec, file_path="./vars.txt"):
@@ -164,6 +169,7 @@ else:
     def trim_video(video_file, timestamp_file):
         global bitrate
         global default_font
+        global want_subtitle
         subtitle_text = None
         if not os.path.isfile(video_file):
             print(f"Video file '{video_file}' not found.")
@@ -229,7 +235,7 @@ else:
                         if bitrate == 'Nonek':
                             if not with_subtitle:
                                 subclip.write_videofile(output)
-                            if with_subtitle:
+                            if with_subtitle and want_subtitle:
                                 text_clip = TextClip(subtitle_text,
                                                      fontsize=52, color="white", bg_color="black", font=default_font)
                                 text_clip = text_clip.set_opacity(0.4)
@@ -240,7 +246,7 @@ else:
                         else:
                             if not with_subtitle:
                                 subclip.write_videofile(output, bitrate=bitrate)
-                            if with_subtitle:
+                            if with_subtitle and want_subtitle:
                                 text_clip = TextClip(subtitle_text,
                                                      fontsize=52, bg_color="black", color="white",
                                                      font=default_font)
@@ -352,25 +358,28 @@ else:
         global timestamp_file
         global video_file
         global bitrate
+        global want_subtitle
         while True:
             if os.path.isfile('./vars.txt'):
-                timestamp_file, video_file, bitrate = read_var_from_file()
+                timestamp_file, video_file, bitrate, want_subtitle = read_var_from_file()
             clear_screen()
             print("Video Trimmer")
             print(f"==== {current_datetime.time()} | {current_datetime.date()} =========")
             print("Previous Selections:")
             print("* txt file:", timestamp_file)
             print("* mp4 file:", video_file)
-            print("* bitrate:", bitrate, "\n")
+            print("* bitrate:", bitrate)
+            print("* want subtitle:", want_subtitle, "\n")
             print("1-[l] List all the MP4 files in the current directory")
             print("2-[t] Use the following txt file for range timestamps")
             print("3-[v] Use the following MP4 file as input")
             print("4-[b] Set the bitrate")
-            print("5-[s] Start Trimming")
-            print("6-[p] Parse and Check Timestamps File")
-            print("7-[e] Edit Timestamps File")
-            print("8-[g] Generate Timestamp File Sample")
-            print("9-[q] Exit")
+            print("5-[w] Set with subtitle")
+            print("6-[s] Start Trimming")
+            print("7-[p] Parse and Check Timestamps File")
+            print("8-[e] Edit Timestamps File")
+            print("9-[g] Generate Timestamp File Sample")
+            print("10-[q] Exit")
             print("==============================")
             choice = input("Select an option: ")
 
@@ -394,6 +403,13 @@ else:
                 if not bitrate:
                     bitrate = None
                 write_var_on_file(f"{bitrate}k")
+            elif choice == "5" or choice == "w":
+                with_subtitle = input("Add subtitle? (y=enter/n): ")
+                if not with_subtitle:
+                    want_subtitle = True
+                elif with_subtitle == 'n':
+                    want_subtitle = False
+                write_var_on_file(f"{want_subtitle}")
             elif choice == "5" or choice == "s":
                 start_trimming(timestamp_file, video_file)
             elif choice == "6" or choice == "p":
