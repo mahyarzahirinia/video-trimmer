@@ -85,7 +85,11 @@ else:
                 elif match_bitrate:
                     bit_var = file_path
                 elif match_subtitle:
-                    sub_var = file_path
+                    if file_path == 'True':
+                        sub_var = True
+                    else:
+                        sub_var = False
+
             return [txt_var, mp4_var, bit_var, sub_var]
 
 
@@ -206,25 +210,25 @@ else:
                         subtitle_text = '.'
 
                     start_time, end_time = parse_timestamp(start_time_str, end_time_str)
-
-                    output_file = f"clip_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}].mp4"
-
                     subclip = video_clip.subclip(start_time, end_time)
-                    file_direname = os.path.dirname(video_file)
 
-                    # Create the subdirectory first
+                    # Variables Definitions
+                    if want_subtitle:
+                        output_file = f"clip_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}]-withsubtitle.mp4"
+                    else:
+                        output_file = f"clip_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}].mp4"
+                    file_direname = os.path.dirname(video_file)
                     sub_directory = os.path.splitext(os.path.basename(video_file))[0]
                     file_direname = file_direname.replace("/", "\\")
                     path_before_to_file = f"{file_direname}\\{sub_directory}"
                     whole_path = f"{file_direname}\\{sub_directory}\\{bitrate}"
+                    output = f"{whole_path}\\{output_file}"
 
                     # Check if directories exits
                     if not os.path.exists(path_before_to_file):
                         os.makedirs(path_before_to_file)
                     if not os.path.exists(whole_path):
                         os.makedirs(whole_path)
-
-                    output = f"{whole_path}\\{output_file}"
 
                     # Check if file already exists
                     if os.path.exists(output):
@@ -235,26 +239,33 @@ else:
                         if bitrate == 'Nonek':
                             if not with_subtitle:
                                 subclip.write_videofile(output)
-                            if with_subtitle and want_subtitle:
-                                text_clip = TextClip(subtitle_text,
-                                                     fontsize=52, color="white", bg_color="black", font=default_font)
-                                text_clip = text_clip.set_opacity(0.4)
-                                text_clip = text_clip.set_duration(subclip.duration)
-                                text_clip = text_clip.set_position(("center", "bottom"))
-                                final_clip = CompositeVideoClip([subclip, text_clip])
-                                final_clip.write_videofile(output)
+                            if with_subtitle:
+                                if want_subtitle:
+                                    text_clip = TextClip(subtitle_text,
+                                                         fontsize=52, color="white", bg_color="black",
+                                                         font=default_font)
+                                    text_clip = text_clip.set_opacity(0.4)
+                                    text_clip = text_clip.set_duration(subclip.duration)
+                                    text_clip = text_clip.set_position(("center", "bottom"))
+                                    final_clip = CompositeVideoClip([subclip, text_clip])
+                                    final_clip.write_videofile(output)
+                                else:
+                                    subclip.write_videofile(output)
                         else:
                             if not with_subtitle:
                                 subclip.write_videofile(output, bitrate=bitrate)
-                            if with_subtitle and want_subtitle:
-                                text_clip = TextClip(subtitle_text,
-                                                     fontsize=52, bg_color="black", color="white",
-                                                     font=default_font)
-                                text_clip = text_clip.set_opacity(0.4)
-                                text_clip = text_clip.set_duration(subclip.duration)
-                                text_clip = text_clip.set_position(("center", "bottom"))
-                                final_clip = CompositeVideoClip([subclip, text_clip])
-                                final_clip.write_videofile(output, bitrate=bitrate)
+                            if with_subtitle:
+                                if want_subtitle:
+                                    text_clip = TextClip(subtitle_text,
+                                                         fontsize=52, bg_color="black", color="white",
+                                                         font=default_font)
+                                    text_clip = text_clip.set_opacity(0.4)
+                                    text_clip = text_clip.set_duration(subclip.duration)
+                                    text_clip = text_clip.set_position(("center", "bottom"))
+                                    final_clip = CompositeVideoClip([subclip, text_clip])
+                                    final_clip.write_videofile(output, bitrate=bitrate)
+                                else:
+                                    subclip.write_videofile(output, bitrate=bitrate)
 
                     # Progress ratio
                     print(f"\033[92mitem {index} out of {len(lines)} processing successful\033[0m")
