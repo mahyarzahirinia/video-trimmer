@@ -210,6 +210,7 @@ else:
                         subtitle_text = '.'
 
                     # Variables Definitions
+                    start_time, end_time = parse_timestamp(start_time_str, end_time_str)
                     if want_subtitle:
                         output_file = f"clip_{convert_time_format(start_time_str)}_{convert_time_format(end_time_str)} [{bitrate}]-withsubtitle.mp4"
                     else:
@@ -231,8 +232,7 @@ else:
                     if os.path.exists(output):
                         continue
 
-                    # Moving down these to increase performance
-                    start_time, end_time = parse_timestamp(start_time_str, end_time_str)
+                    # Opening video file here to increase performance
                     subclip = video_clip.subclip(start_time, end_time)
 
                     if os.access(file_direname, os.W_OK):
