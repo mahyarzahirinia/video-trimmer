@@ -182,10 +182,13 @@ else:
 
                     # Count Dashes to decide if text has subtitle
                     dash_counts = line.count("-")
-
-                    if dash_counts == 1:
-                        start_time_str, end_time_str = line.strip().split("-")
+                    with_subtitle = False
                     if dash_counts > 1:
+                        with_subtitle = True
+
+                    if not with_subtitle:
+                        start_time_str, end_time_str = line.strip().split("-")
+                    if with_subtitle:
                         start_time_str, end_time_str, subtitle_text = line.strip().split("-", 2)
 
                     # check for a long text
@@ -224,9 +227,9 @@ else:
                     if os.access(file_direname, os.W_OK):
                         # Specify the temp directory for the video and audio files
                         if bitrate == 'Nonek':
-                            if dash_counts == 1:
+                            if not with_subtitle:
                                 subclip.write_videofile(output)
-                            if dash_counts > 1:
+                            if with_subtitle:
                                 text_clip = TextClip(subtitle_text,
                                                      fontsize=52, color="white", bg_color="black", font=default_font)
                                 text_clip = text_clip.set_opacity(0.4)
@@ -235,9 +238,9 @@ else:
                                 final_clip = CompositeVideoClip([subclip, text_clip])
                                 final_clip.write_videofile(output)
                         else:
-                            if dash_counts == 1:
+                            if not with_subtitle:
                                 subclip.write_videofile(output, bitrate=bitrate)
-                            if dash_counts > 1:
+                            if with_subtitle:
                                 text_clip = TextClip(subtitle_text,
                                                      fontsize=52, bg_color="black", color="white",
                                                      font=default_font)
