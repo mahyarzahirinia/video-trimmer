@@ -182,6 +182,7 @@ else:
 
                     # Check if file already exists, if so don't waste time
                     if os.path.exists(output):
+                        print(f"\033[92mitem {index} out of {len(lines)} already exists\033[0m")
                         continue
 
                     # Count Dashes to decide if text has subtitle
@@ -248,6 +249,7 @@ else:
                                 final_clip.write_videofile(output, bitrate=bitrate)
 
                     # Progress ratio
+                    print(f"\033[92mitem {index} out of {len(lines)} processing successful\033[0m")
                     manual_progress_bar(len(lines), index)
 
         except Exception as e:
