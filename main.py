@@ -243,7 +243,7 @@ else:
                             if with_subtitle:
                                 if want_subtitle:
                                     text_clip = TextClip(subtitle_text,
-                                                         fontsize=52, color="white", bg_color="black",
+                                                         fontsize=42, color="white", bg_color="black",
                                                          font=default_font)
                                     text_clip = text_clip.set_opacity(0.4)
                                     text_clip = text_clip.set_duration(subclip.duration)
@@ -258,7 +258,7 @@ else:
                             if with_subtitle:
                                 if want_subtitle:
                                     text_clip = TextClip(subtitle_text,
-                                                         fontsize=52, bg_color="black", color="white",
+                                                         fontsize=42, bg_color="black", color="white",
                                                          font=default_font)
                                     text_clip = text_clip.set_opacity(0.4)
                                     text_clip = text_clip.set_duration(subclip.duration)
